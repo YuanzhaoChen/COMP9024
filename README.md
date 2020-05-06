@@ -1,5 +1,9 @@
 # COMP9024
 
+## Table of content
+  - [Course content](#course-content)
+  - [Assignments](#assignments)
+
 ## Course content
   
   - [Introduction in C](#introduction-in-c)
