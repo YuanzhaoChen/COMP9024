@@ -1,0 +1,1 @@
+(task2)-core2-(rt:2) (task3)-core1-(rt:2) (task1)-core4-(rt:2) (task4)-core3-(rt:4) (task5)-core4-(rt:4) (task13)-core2-(rt:7) (task14)-core1-(rt:7) (task9)-core3-(rt:7) (task10)-core4-(rt:7) (task8)-core3-(rt:8) (task15)-core4-(rt:8) (task11)-core2-(rt:8) (task12)-core1-(rt:8) 
