@@ -23,10 +23,10 @@ BusStop *newBusStop(char busStopName[],int busStopId){
 }
 
 // Return a new Edge
-Edge *newEdge(Vertex *thisVertex,int distance){
+Edge *newEdge(Vertex *v,int distance){
     Edge *thisEdge=malloc(sizeof(Edge));
     assert(thisEdge!=NULL);
-    thisEdge->dst=thisVertex;
+    thisEdge->dst=v;
     thisEdge->distance=distance;
     return thisEdge;
 }
@@ -62,9 +62,9 @@ Graph newGraph(int n){
 }
 
 // Insert a new vertex to graph
-void insertVertex(Graph g, Vertex *thisVertex){
-    assert(g!=NULL && g->nV<=g->size && thisVertex!=NULL);
-    g->vertices[g->nV]=thisVertex;          // free spot in g, since BusStop.txt serial number is ascending,
+void insertVertex(Graph g, Vertex *v){
+    assert(g!=NULL && g->nV<=g->size && v!=NULL);
+    g->vertices[g->nV]=v;                   // free spot in g, since BusStop.txt serial number is ascending,
     g->nV+=1;                               // g->nV = thisVertex->thisBusStop->id !
 }
 
@@ -74,7 +74,7 @@ void insertEdge(Graph g, int FromBusId, int ToBusId, int distance){
     Vertex *src=g->vertices[FromBusId];                     // the bus id is exacatly the index of where it's vertex is stored in vertices 
     Vertex *dst=g->vertices[ToBusId];
     assert(src!=NULL && dst!=NULL);
-    appendList(src->edgesQueue,newEdge(dst,distance));    // insert the edge to the corresponding priority queue
+    appendList(src->edgesQueue,newEdge(dst,distance));      // insert the edge to the corresponding priority queue
     appendList(dst->reverse_edgesQueue,newEdge(src,distance));
     g->nE+=1;
 }
@@ -102,7 +102,7 @@ void uploadVertex(Graph g,const char fileName[]){
     FILE*fp=fopen(fileName,"r");
     assert(fp!=NULL);
     char line[LINE_LENGTH];
-    while(fgets(line,LINE_LENGTH,fp)!=NULL){    //decompose each line into name and id
+    while(fgets(line,LINE_LENGTH,fp)!=NULL){         //decompose each line into name and id
         char busStopName[20];
         int busStopId;
         char *token=strtok(line,":");
@@ -110,7 +110,7 @@ void uploadVertex(Graph g,const char fileName[]){
         token=strtok(NULL,":");
         strcpy(busStopName,token);
         if (strlen(busStopName)-1>=0 && busStopName[strlen(busStopName)-1]=='\n'){
-            busStopName[strlen(busStopName)-1]='\0'; //do not include '\n' in BusStopName
+            busStopName[strlen(busStopName)-1]='\0'; // do not include '\n' in BusStopName
         }
         insertVertex(g,newVertex(busStopName,busStopId));
     }
@@ -122,11 +122,11 @@ void uploadEdges(Graph g,const char fileName[]){
     FILE*fp=fopen(fileName,"r");
     assert(fp!=NULL);
     char line[LINE_LENGTH];
-    while(fgets(line,LINE_LENGTH,fp)!=NULL){    // extract busId1, busId2, distance
+    while(fgets(line,LINE_LENGTH,fp)!=NULL){        // extract busId1, busId2, distance
         if(strcmp(line,"\n")==0){continue;}
         int fromBusId=0,toBusId=0,distance=0;
-        int state=0;                            // state 0: reading fromBusId, state 1: reading toBusId, state 3: reading distance
-        for(int i=0;i<strlen(line);i+=1){       // read info in each line
+        int state=0;                                // state 0: reading fromBusId, state 1: reading toBusId, 
+        for(int i=0;i<strlen(line);i+=1){           // state 2: reading distance
             if(line[i]=='-'){
                 state=1;
             }else if(line[i]==':'){
@@ -154,11 +154,11 @@ void unmarkAllVertices(Graph g){
 }
 
 // Mark vertices that can be visited from thisVertex
-void dfs(Vertex *thisVertex){
-    assert(thisVertex!=NULL && thisVertex->edgesQueue!=NULL);
-	if(thisVertex->isMarked==1){return;}
-    thisVertex->isMarked=1; // if this vertex is called by dfs() then it is mark as visted 
-	ListNode *curr=thisVertex->edgesQueue->firstNode;
+void dfs(Vertex *v){
+    assert(v!=NULL && v->edgesQueue!=NULL);
+	if(v->isMarked==1){return;}
+    v->isMarked=1;                         // if this vertex is called by dfs() then it is mark as visted 
+	ListNode *curr=v->edgesQueue->firstNode;
     while(curr!=NULL){
 		dfs(curr->thisEdge->dst);
 		curr=curr->next;
@@ -166,11 +166,11 @@ void dfs(Vertex *thisVertex){
 }
 
 // Mark vertices that can be visited from thisVertex, through reverse edge
-void reverse_dfs(Vertex *thisVertex){
-    assert(thisVertex!=NULL && thisVertex->reverse_edgesQueue!=NULL);
-	if(thisVertex->isMarked==1){return;}
-	thisVertex->isMarked=1;
-	ListNode *curr=thisVertex->reverse_edgesQueue->firstNode;
+void reverse_dfs(Vertex *v){
+    assert(v!=NULL && v->reverse_edgesQueue!=NULL);
+	if(v->isMarked==1){return;}
+	v->isMarked=1;
+	ListNode *curr=v->reverse_edgesQueue->firstNode;
     while(curr!=NULL){
 		reverse_dfs(curr->thisEdge->dst);
 		curr=curr->next;
@@ -178,11 +178,11 @@ void reverse_dfs(Vertex *thisVertex){
 }
 
 // Print the names of all the bus stops reachable from the bus stop in breadth-first-search order
-void bfs(Vertex *thisVertex){
-	assert(thisVertex!=NULL);
+void bfs(Vertex *v){
+	assert(v!=NULL);
 	List *seq=newList();
-	thisVertex->isMarked=1;
-	appendList(seq,newEdge(thisVertex,0));	// in order to make use of appendList to store vertex, we have to create a edge
+	v->isMarked=1;
+	appendList(seq,newEdge(v,0));	        // in order to make use of appendList to store vertex, we have to create a edge
 											// distance is meaningless here so can be any integer, here we set to 0
 	while(seq->size!=0){
 		ListNode *thisNode=popList(seq);
@@ -209,7 +209,7 @@ int StronglyConnectivity(const char *busStops,const char *BusNames,const char *B
     dfs(g->vertices[0]);
     int nVisited=0;
     for(int i=0;i<g->nV;i+=1){
-        if(g->vertices[i]->isMarked==1){ nVisited+=1; } // count number of visited vertices  
+        if(g->vertices[i]->isMarked==1){ nVisited+=1; }     // count number of visited vertices  
     }
 	printf("Number of vertices can be visited through forward propagation: %d\n",nVisited);
     if(nVisited!=g->nV){return 0;}
@@ -220,30 +220,31 @@ int StronglyConnectivity(const char *busStops,const char *BusNames,const char *B
         if(g->vertices[i]->isMarked==1){ nVisited+=1; }
     }
 	printf("Number of vertices can be visited through backwards propagation: %d\n",nVisited);
+    freeGraph(g);
     if(nVisited!=g->nV){return 0;}
     return 1;
 }
 
 // explore vertex in dfs, also push vertex on stack when it can't go to anywhere else
-void maximalStronlyComponents_helper_1(Vertex *thisVertex,List *L){
-    assert(thisVertex!=NULL && thisVertex->edgesQueue!=NULL);
-	if(thisVertex->isMarked==1){return;}
-    thisVertex->isMarked=1; // if this vertex is called by dfs() then it is mark as visted 
-	ListNode *curr=thisVertex->edgesQueue->firstNode;
+void maximalStronlyComponents_helper_1(Vertex *v,List *L){
+    assert(v!=NULL && v->edgesQueue!=NULL);
+	if(v->isMarked==1){return;}
+    v->isMarked=1;                                          // if this vertex is called by dfs() then it is mark as visted 
+	ListNode *curr=v->edgesQueue->firstNode;
     while(curr!=NULL){
 		maximalStronlyComponents_helper_1(curr->thisEdge->dst,L);
 		curr=curr->next;
     }    
-    pushList(L,newEdge(thisVertex,0));
+    pushList(L,newEdge(v,0));
 }
 
 // explore vertex reversely
-void maximalStronlyComponents_helper_2(Vertex*thisVertex){
-    assert(thisVertex!=NULL && thisVertex->reverse_edgesQueue!=NULL);
-	if(thisVertex->isMarked==1){return;}
-	thisVertex->isMarked=1;
-    printf("=> [%s]\n",thisVertex->thisBusStop->name);
-	ListNode *curr=thisVertex->reverse_edgesQueue->firstNode;
+void maximalStronlyComponents_helper_2(Vertex *v){
+    assert(v!=NULL && v->reverse_edgesQueue!=NULL);
+	if(v->isMarked==1){return;}
+	v->isMarked=1;
+    printf("=> [%s]\n",v->thisBusStop->name);
+	ListNode *curr=v->reverse_edgesQueue->firstNode;
     while(curr!=NULL){
 		maximalStronlyComponents_helper_2(curr->thisEdge->dst);
 		curr=curr->next;
@@ -254,7 +255,7 @@ void maximalStronlyComponents_helper_2(Vertex*thisVertex){
 void maximalStronlyComponents(const char *busStops,const char *BusNames,const char *BusRoutes,const char *Distance){
     Graph g=makeGraphFromFiles(busStops,BusNames,BusRoutes,Distance);
     unmarkAllVertices(g);
-    List *L=newList();  // use List as a stack, since push and pop are implmented this is feasible 
+    List *L=newList();                                      // use List as a stack, since push and pop are implmented this is feasible 
     for(int i=0;i<g->nV;i+=1){
         if(g->vertices[i]->isMarked==1){
             continue;
@@ -274,14 +275,15 @@ void maximalStronlyComponents(const char *busStops,const char *BusNames,const ch
     }
     printf("\nIn total there are %d strongly connected components in the bus network\n",component_num);
     freeList(L);
+    freeGraph(g);
 }
 
 // Return the bus stop id (serial number) of the bus
 int findBusStop(Graph g, const char*busName){
-	int busId=-1;		// by defalut all bus stop serial numbers are non negative
+	int busId=-1;		                                    // by defalut all bus stop serial numbers are non negative
 	for(int i=0;i<g->nV;i+=1){
 		if(strcmp(g->vertices[i]->thisBusStop->name,busName)==0){
-			busId=i;	// find corresponding vetex of the sourceStop
+			busId=i;	                                    // find corresponding vetex of the sourceStop
 			break;
 		}
 	}
@@ -297,19 +299,20 @@ void reachableStops(const char *sourceStop,const char *busStops,const char *BusN
 		return;
 	}
 	bfs(g->vertices[busStopId]);
+    freeGraph(g);
 }
 
-void relax(struct binary_heap *routeHeap,Vertex *thisVertex){
-    ListNode *curr=thisVertex->edgesQueue->firstNode;                       // explore each edge of the vertex to see whether we can relax
+void relax(struct binary_heap *routeHeap,Vertex *v){
+    ListNode *curr=v->edgesQueue->firstNode;                // explore each edge of the vertex to see whether we can relax
     while(curr!=NULL){
-        if(curr->thisEdge->dst->isMarked==1){                               // if this vertex is something that has been taken out of heap, 
-            curr=curr->next;                                                // then don't look at it (shortest path already found)
+        if(curr->thisEdge->dst->isMarked==1){               // if this vertex is something that has been taken out of heap, 
+            curr=curr->next;                                // then don't look at it (shortest path already found)
             continue;
         }
-        if(thisVertex->distanceFromStartVertex+curr->thisEdge->distance\
+        if(v->distanceFromStartVertex+curr->thisEdge->distance\
           <curr->thisEdge->dst->distanceFromStartVertex){
-            BinaryHeap_changeNode(routeHeap,curr->thisEdge->dst->positionInHeap,thisVertex->distanceFromStartVertex + curr->thisEdge->distance);
-            curr->thisEdge->dst->previousVertexInsShortestPath=thisVertex;  // now we know one thing: the shortest path to curr->thisEdge->dst 
+            BinaryHeap_changeNode(routeHeap,curr->thisEdge->dst->positionInHeap,v->distanceFromStartVertex + curr->thisEdge->distance);
+            curr->thisEdge->dst->previousVertexInsShortestPath=v;           // now we know one thing: the shortest path to curr->thisEdge->dst 
         }                                                                   // must pass thisVertex beforehand
         curr=curr->next;
     }
@@ -324,8 +327,8 @@ void printRoute(Graph g,int srcStopId, int dstStopID){
     }
     List *L=newList();
     while(currV!=g->vertices[srcStopId]){
-        pushList(L,newEdge(currV,0));   // the is just to save a vertex to a list, distance is useless here so can be an arbitray integer
-        currV=currV->previousVertexInsShortestPath;
+        pushList(L,newEdge(currV,0));                                       // the is just to save a vertex to a list, 
+        currV=currV->previousVertexInsShortestPath;                         // distance is useless here so can be an arbitray integer
     }
     pushList(L,newEdge(currV,0));
     ListNode *currL=L->firstNode;
@@ -352,21 +355,45 @@ const char *BusNames,const char *BusRoutes,const char *Distance){
 		printf("Destination stop is not in graph!\n");
 		return;
 	}
-    
     struct binary_heap *routeHeap=newBinaryHeap(g->nV);
-    
     for(int id=0;id<g->nV;id+=1){
         BinaryHeap_addNode(routeHeap,g->vertices[id]);
     }
-    
     while(routeHeap->n>1){ // binary heap's size>=1
         Vertex *v=BinaryHeap_removeMin(routeHeap);
         assert(v!=NULL);
         relax(routeHeap,v);
         v->isMarked=1;
     }
-    
     printRoute(g,srcStopId,dstStopID);
+    BinaryHeap_free(routeHeap);
+    freeGraph(g);
 }
 
+void freeEdge(Edge *e){
+    free(e);
+}
+
+void freeVertex(Vertex *v){
+    ListNode *curr=v->edgesQueue->firstNode;
+    while(curr!=NULL){
+        freeEdge(curr->thisEdge);
+        curr=curr->next;
+    }
+    curr=v->reverse_edgesQueue->firstNode;
+    while(curr!=NULL){
+        freeEdge(curr->thisEdge);
+        curr=curr->next;
+    }
+    freeList(v->edgesQueue);
+    freeList(v->reverse_edgesQueue);
+    free(v);
+}
+
+void freeGraph(Graph g){
+    for(int i=0;i<g->nV;i+=1){
+        freeVertex(g->vertices[i]);
+    }
+    free(g);
+}
 

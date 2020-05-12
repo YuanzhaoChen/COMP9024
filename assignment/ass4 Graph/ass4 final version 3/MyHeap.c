@@ -131,3 +131,7 @@ void BinaryHeap_printHeap(BinaryHeap *heap){
         printf("%d|%d:%s\t%d\n",i,heap->node[i]->positionInHeap,heap->node[i]->thisBusStop->name,heap->node[i]->distanceFromStartVertex);
     }
 }
+
+void BinaryHeap_free(BinaryHeap *heap){
+    free(heap->node);
+}
