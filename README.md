@@ -1,8 +1,8 @@
 # COMP9024
 
 ## Table of contents
-  - [Course content](#course-content)
-  - [Assignments](#assignments)
+  - Course content
+  - Assignments
 
 ## Course content
   
