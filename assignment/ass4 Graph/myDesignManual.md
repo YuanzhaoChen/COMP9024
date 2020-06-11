@@ -127,7 +127,7 @@ typedef struct binary_heap{
 Inside the binary heap, vetices are store in an array. Below example depicts how an array represents binary heap:
 
 <p align="center">
-<img src="arrayHeap.png" alt="drawing" width="250"/>
+<img src="image/arrayHeap.png" alt="drawing" width="250"/>
 </p>
 Notice that array at position 0 is unused.
 
