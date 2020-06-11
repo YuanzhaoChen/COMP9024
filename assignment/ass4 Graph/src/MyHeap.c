@@ -33,10 +33,6 @@ void BinaryHeap_changeNode(BinaryHeap *heap,int pos,int newDistance){
 }
 
 void BinaryHeap_swap(BinaryHeap *heap, int src, int dst){
-    assert(src>=1);
-    assert(src<heap->n);
-    assert(dst>=1);
-    assert(dst<heap->n);
     assert(src>=1 && src<heap->n && dst>=1 && dst<heap->n);
     Vertex *tmp=heap->node[src];
     heap->node[src]=heap->node[dst];

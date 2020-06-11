@@ -13,7 +13,7 @@ In this assignment, a digraph is used to represent a bus network and several fun
  - [Time Complexity Analysis](#time-complexity-analysis)
  - [Appendix](#appendix)
    - [Structures Dependencies](#structures-dependencies) 
-  
+
 ## Data Structures
 
 ### Graph Structures 
@@ -94,7 +94,7 @@ All structures disscussed in this section are defined in ```MyGrap.h```
     struct edge *thisEdge;
     struct list_node *next;
   }ListNode;
-  ``` 
+  ```
   Go to [appendix](#appendix) to see its relationship with other structures
 
 - ```List```
@@ -139,13 +139,13 @@ Go to [appendix](#appendix) to see its relationship with other structures
   
  - Breadth-first Search (BFS)
    - used in ```reachableStops```
- 
+
  - Kosaraju’s Algorithm
    - used in ```maximalStonglyComponents``` 
   
  - Dijkstra's Algorithm
    - used in ```TravelRoute``` to find shortest path
-  
+
 ## Time Complexity Analysis
 |        Function name         | Time complexity |
 |:-----------------------------|:---------------:|
@@ -159,5 +159,6 @@ Go to [appendix](#appendix) to see its relationship with other structures
 ### Structures Dependencies
 Diagram below depicts the relationship between different structures, if structure A encloses structure B then structure B is the subclass of structure A (aka, there is a B declared in A). 
 
-![](dependency.png)
-![](dependency2.png)
+![](image/dependency.png)
+![](image/dependency2.png)
+
