@@ -160,9 +160,9 @@ Go to [appendix](#appendix) to see its relationship with other structures
 Diagram below depicts the relationship between different structures, if structure A encloses structure B then structure B is the subclass of structure A (aka, there is a B declared in A). 
 
 <p align="center">
-<img src="image/dependency.png" alt="drawing" width="450"/>
+<img src="image/dependency.png" alt="drawing" width="550"/>
 </p>
 
 <p align="center">
-<img src="image/dependency2.png" alt="drawing" width="450"/>
+<img src="image/dependency2.png" alt="drawing" width="350"/>
 </p>
